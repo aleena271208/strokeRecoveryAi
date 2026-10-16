@@ -1,0 +1,1120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#102d35">
+  <meta name="description" content="RecoveryAI — a supportive stroke recovery companion.">
+  <title>RecoveryAI | Recovery Companion</title>
+
+  <style>
+    :root {
+      --bg: #f3f7f6;
+      --surface: #ffffff;
+      --ink: #18343a;
+      --muted: #667b80;
+      --primary: #176c68;
+      --primary-dark: #105450;
+      --mint: #dff4ee;
+      --border: #dce8e5;
+      --danger: #b42332;
+      --danger-bg: #fff0f0;
+      --shadow: 0 12px 35px rgba(20, 58, 60, .07);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 20px;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    body.app-open { overflow-x: hidden; }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { opacity: .6; cursor: wait; }
+
+    .hidden { display: none !important; }
+
+    .splash {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(118, 210, 181, .22), transparent 35%),
+        linear-gradient(140deg, #102d35, #175e5b);
+      color: white;
+    }
+
+    .welcome {
+      width: min(720px, 100%);
+      text-align: center;
+      padding: clamp(24px, 6vw, 58px);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 28px;
+      background: rgba(255,255,255,.07);
+      box-shadow: 0 25px 70px rgba(0,0,0,.16);
+    }
+
+    .brand-mark {
+      width: 76px;
+      height: 76px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 18px;
+      border-radius: 24px;
+      background: #dff4ee;
+      color: #155d58;
+      font-size: 36px;
+      font-weight: 800;
+    }
+
+    .welcome h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 7vw, 4rem);
+      letter-spacing: -2px;
+    }
+
+    .welcome p {
+      max-width: 550px;
+      margin: 18px auto 26px;
+      color: #e1f1ed;
+    }
+
+    .welcome .small-note { color: #d0e5df; }
+
+    .topbar {
+      background: #102d35;
+      color: white;
+      padding: 15px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      background: var(--mint);
+      color: var(--primary);
+      border-radius: 13px;
+      font-size: 22px;
+    }
+
+    .top-actions, .button-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .page {
+      width: min(1200px, 100%);
+      margin: 0 auto;
+      padding: 25px 18px 50px;
+    }
+
+    .hero {
+      padding: 26px 0 18px;
+    }
+
+    .eyebrow {
+      color: var(--primary);
+      font-size: .76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    h1, h2, h3 { line-height: 1.25; }
+    h2 { font-size: 1.45rem; margin: 0 0 12px; }
+    h3 { font-size: 1.05rem; margin: 0 0 10px; }
+    p { margin-top: 0; }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.65rem);
+      letter-spacing: -1px;
+      margin: 7px 0 10px;
+    }
+
+    .muted, .small-note { color: var(--muted); }
+    .small-note { font-size: .86rem; }
+    .tiny { font-size: .78rem; }
+
+    .notice {
+      border: 1px solid #b9dfd3;
+      border-radius: 14px;
+      background: #eaf8f2;
+      padding: 14px 16px;
+      color: #234e48;
+      margin: 12px 0 22px;
+    }
+
+    .notice.warning {
+      border-color: #f0d49c;
+      background: #fff8e8;
+      color: #6c4b13;
+    }
+
+    .notice.danger {
+      border-color: #f2b8bd;
+      background: var(--danger-bg);
+      color: #81212b;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      grid-column: span 6;
+      min-width: 0;
+      padding: 21px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      scroll-margin-top: 20px;
+    }
+
+    .card.full { grid-column: 1 / -1; }
+    .card.third { grid-column: span 4; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card-header p { margin-bottom: 0; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: #edf4f2;
+      color: #42635e;
+      font-size: .78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px solid var(--primary);
+      border-radius: 11px;
+      padding: 10px 15px;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      transition: background .15s, transform .15s;
+    }
+
+    .btn:hover { background: var(--primary-dark); }
+    .btn:active { transform: translateY(1px); }
+
+    .btn.secondary {
+      background: white;
+      color: var(--primary);
+      border-color: #b9d6cf;
+    }
+
+    .btn.secondary:hover { background: #eef8f4; }
+
+    .btn.danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    .btn.light {
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.35);
+      color: white;
+    }
+
+    .btn.small { padding: 7px 11px; font-size: .86rem; }
+
+    .field { margin: 13px 0; }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    input, select, textarea {
+      display: block;
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #cddbd7;
+      border-radius: 10px;
+      background: white;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(23,108,104,.12);
+    }
+
+    textarea { min-height: 100px; resize: vertical; }
+
+    input[type="checkbox"] {
+      display: inline-block;
+      width: auto;
+      margin-right: 8px;
+    }
+
+    .check-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+    }
+
+    .camera-stage {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 15px;
+      background: #10252a;
+      aspect-ratio: 4 / 3;
+      margin: 13px 0;
+    }
+
+    #camera {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    #overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform: scaleX(-1);
+    }
+
+    .camera-message {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border-radius: 9px;
+      background: rgba(0,0,0,.65);
+      color: white;
+      text-align: center;
+      padding: 8px 10px;
+      font-size: .84rem;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .status-box {
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #f8fbfa;
+      border-radius: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-box strong {
+      display: block;
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .status-box span { font-size: .92rem; }
+
+    .chat-log {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 160px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: #f8fbfa;
+      margin-bottom: 12px;
+    }
+
+    .bubble {
+      max-width: 90%;
+      width: fit-content;
+      padding: 11px 13px;
+      border-radius: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .bubble.user {
+      align-self: flex-end;
+      background: #d9f2e9;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bubble.ai {
+      align-self: flex-start;
+      background: white;
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-compose {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 9px;
+    }
+
+    .chat-compose input { min-width: 0; }
+
+    .medicine-item, .history-item {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      margin: 9px 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .settings-panel {
+      border: 2px solid #c7e5db;
+      background: #fafffd;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .settings-section {
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: white;
+    }
+
+    .assistant-panel {
+      margin-top: 14px;
+      padding: 15px;
+      border-radius: 13px;
+      background: #f0f8f5;
+      border: 1px solid #cce5dc;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: .84rem;
+      padding: 24px 12px;
+    }
+
+    @media (max-width: 850px) {
+      .card, .card.third { grid-column: span 12; }
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 500px) {
+      .topbar { padding: 13px; }
+      .page { padding: 17px 12px 35px; }
+      .card { padding: 16px; }
+      .status-grid { grid-template-columns: 1fr; }
+      .chat-compose { grid-template-columns: 1fr; }
+      .top-actions { width: 100%; }
+      .top-actions .btn { flex: 1; }
+      .welcome { padding: 26px 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Welcome screen: it stays visible until Continue is clicked. -->
+  <section id="splash" class="splash">
+    <div class="welcome">
+      <div class="brand-mark" aria-hidden="true">R+</div>
+      <div class="eyebrow" style="color:#b7e8d8">Your recovery companion</div>
+      <h1>RecoveryAI</h1>
+      <p>
+        A supportive space for recovery observations, speech practice,
+        reminders, report explanations and conversations with an AI assistant.
+      </p>
+      <div class="notice warning" style="text-align:left">
+        <strong>Important:</strong> RecoveryAI is not a medical device and
+        cannot diagnose a stroke, detect a heart attack or determine that
+        someone is safe.
+      </div>
+      <button id="enterApp" class="btn" type="button">
+        Continue to RecoveryAI →
+      </button>
+      <p class="small-note" style="margin-top:18px">
+        Camera and microphone features require your permission.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main application -->
+  <div id="appShell" class="hidden">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">R+</span>
+        <span>RecoveryAI</span>
+      </div>
+      <div class="top-actions">
+        <button id="assistantModeBtn" class="btn light" type="button">
+          Assistant mode: Off
+        </button>
+        <button id="settingsBtn" class="btn light" type="button">
+          ⚙ Settings
+        </button>
+        <button id="emergencyNow" class="btn danger" type="button">
+          Emergency help
+        </button>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero">
+        <div class="eyebrow">Recovery support dashboard</div>
+        <h1>Small steps, supported recovery.</h1>
+        <p class="muted">
+          Record observations, practise speech, set reminders and ask
+          RecoveryAI questions to discuss with your healthcare professional.
+        </p>
+      </section>
+
+      <div class="notice danger" role="alert">
+        <strong>Emergency warning:</strong> Sudden facial drooping, new
+        weakness on one side, difficulty speaking, chest pain, collapse or
+        severe breathing difficulty can be an emergency. Call your local
+        emergency service immediately. In India, call <strong>112</strong>.
+        Do not wait for this app or a camera scan.
+      </div>
+
+      <!-- Settings -->
+      <section id="settingsPanel" class="card full settings-panel hidden">
+        <div class="card-header">
+          <div>
+            <h2>Settings and assistance</h2>
+            <p class="small-note">
+              These preferences are saved in this browser on this device.
+            </p>
+          </div>
+          <button id="closeSettings" class="btn secondary small" type="button">
+            Close
+          </button>
+        </div>
+
+        <div class="settings-grid">
+          <section class="settings-section">
+            <h3>Emergency contact and hospitals</h3>
+            <p class="small-note">
+              Hospital search opens Google Maps. Check the destination and
+              call emergency services directly if urgent.
+            </p>
+
+            <div class="field">
+              <label for="emergencyNumber">Local emergency number</label>
+              <input id="emergencyNumber" type="tel" value="112"
+                     autocomplete="tel" placeholder="e.g. 112">
+            </div>
+
+            <div class="button-row">
+              <button id="saveEmergency" class="btn secondary" type="button">
+                Save number
+              </button>
+              <button id="callEmergency" class="btn danger" type="button">
+                Open phone dialer
+              </button>
+            </div>
+
+            <div class="field" style="margin-top:20px">
+              <label for="contactName">Emergency contact name (optional)</label>
+              <input id="contactName" type="text" placeholder="Contact name">
+            </div>
+            <div class="field">
+              <label for="contactPhone">Emergency contact phone (optional)</label>
+              <input id="contactPhone" type="tel" placeholder="Phone number">
+            </div>
+            <div class="button-row">
+              <button id="saveContact" class="btn secondary" type="button">
+                Save contact
+              </button>
+              <button id="callContact" class="btn" type="button">
+                Call contact
+              </button>
+            </div>
+
+            <div style="margin-top:20px">
+              <button id="findHospitals" class="btn" type="button">
+                Find hospitals near me ↗
+              </button>
+              <p class="small-note" style="margin-top:8px">
+                Google Maps may use its own location settings. Allow location
+                permission if your browser requests it.
+              </p>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h3>Assistant voice</h3>
+            <label class="check-label" for="voiceReplies">
+              <input id="voiceReplies" type="checkbox" checked>
+              Speak AI responses aloud
+            </label>
+
+            <div class="notice" style="margin-top:15px">
+              The assistant uses your browser's available speech voice.
+              Recording a sample below is for local playback only; it does
+              not clone or change the assistant's voice.
+            </div>
+
+            <div class="button-row">
+              <button id="recordVoice" class="btn" type="button">
+                Record voice sample
+              </button>
+              <button id="stopVoiceRecording" class="btn secondary" type="button"
+                      disabled>
+                Stop recording
+              </button>
+            </div>
+            <p id="voiceRecordStatus" class="small-note" aria-live="polite">
+              No recording made.
+            </p>
+            <audio id="voicePlayback" controls class="hidden"
+                   style="width:100%;margin-top:10px"></audio>
+
+            <hr style="border:0;border-top:1px solid var(--border);margin:20px 0">
+
+            <h3>Assistant controls</h3>
+            <label class="check-label" for="assistantToggle">
+              <input id="assistantToggle" type="checkbox">
+              Enable assistant mode
+            </label>
+            <p class="small-note">
+              Use the microphone button to speak. The assistant sends your
+              recognized words to the selected AI provider.
+            </p>
+            <button id="startVoice" class="btn secondary" type="button">
+              🎙 Speak to assistant
+            </button>
+          </section>
+        </div>
+      </section>
+
+      <div class="grid">
+        <!-- Camera observations -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2>Camera observations</h2>
+              <p class="small-note">
+                Experimental face landmark and movement observations only.
+              </p>
+            </div>
+            <span id="cameraStatus" class="pill">Camera off</span>
+          </div>
+
+          <div class="camera-stage">
+            <video id="camera" autoplay muted playsinline
+                   aria-label="Camera preview"></video>
+            <canvas id="overlay" aria-hidden="true"></canvas>
+            <div id="cameraOverlayMessage" class="camera-message">
+              Camera is off
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button id="startCamera" class="btn" type="button">
+              Start camera
+            </button>
+            <button id="stopCamera" class="btn secondary" type="button">
+              Stop camera
+            </button>
+          </div>
+
+          <div class="button-row" style="margin-top:12px">
+            <button id="completeScan" class="btn" type="button">
+              Complete scan (face + head)
+            </button>
+            <button id="faceCheck" class="btn secondary" type="button">
+              Face observation only
+            </button>
+            <button id="headCheck" class="btn secondary" type="button">
+              Head movement only
+            </button>
+          </div>
+          <div class="button-row" style="margin-top:12px">
+            <button id="breathingStart" class="btn secondary" type="button">
+              Start guided breathing
+            </button>
+            <button id="breathingStop" class="btn secondary" type="button" disabled>
+              Stop breathing guide
+            </button>
+          </div>
+          <p id="breathingGuide" class="small-note" aria-live="polite">Guided breathing is an exercise, not a breathing-rate measurement.</p>
+
+          <div class="status-grid">
+            <div class="status-box">
+              <strong>Face observation</strong>
+              <span id="faceStatus">Not assessed</span>
+            </div>
+            <div class="status-box">
+              <strong>Head movement</strong>
+              <span id="headStatus">Not assessed</span>
+            </div>
+            <div class="status-box">
+              <strong>Facial puffiness</strong>
+              <span id="puffinessStatus">Not measured</span>
+            </div>
+            <div class="status-box">
+              <strong>Breathing</strong>
+              <span id="breathingStatus">Not clinically assessed</span>
+            </div>
+          </div>
+
+          <p class="small-note">
+            Check for new facial drooping, one-sided weakness, slurred speech,
+            sudden vision or balance trouble. If these appear suddenly, call 112
+            immediately; do not wait for a scan. Breathing rate is not measured by this camera.
+          </p>
+        </section>
+
+        <!-- Speech practice -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2>Speech practice</h2>
+              <p class="small-note">
+                Capture speech for review; this is not a clinical score.
+              </p>
+            </div>
+            <span class="pill">Practice</span>
+          </div>
+
+          <div class="notice">
+            Practise only exercises recommended by your clinician or speech
+            and language therapist. Stop if you feel uncomfortable.
+          </div>
+
+          <p><strong>Suggested sentence</strong></p>
+          <p>“Today I am working on my recovery.”</p>
+
+          <div class="button-row">
+            <button id="speechCheck" class="btn" type="button">
+              🎙 Practise speaking
+            </button>
+            <button id="transcribeUpload" class="btn secondary" type="button">
+              Upload audio
+            </button>
+          </div>
+
+          <input id="audioFile" type="file" accept="audio/*" class="hidden">
+          <p id="speechResult" class="notice" aria-live="polite">
+            Your transcript will appear here.
+          </p>
+          <p id="reportFileName" class="small-note"></p>
+        </section>
+
+        <!-- AI conversation -->
+        <section class="card full">
+          <div class="card-header">
+            <div>
+              <h2>Talk to RecoveryAI</h2>
+              <p class="small-note">
+                Ask general recovery questions or prepare questions for your
+                healthcare professional.
+              </p>
+            </div>
+            <span class="pill">AI assistant</span>
+          </div>
+
+          <p id="aiStatus" class="notice" aria-live="polite">
+            Checking AI configuration…
+          </p>
+
+          <div class="field">
+            <label for="provider">AI provider</label>
+            <select id="provider">
+              <option value="openai">OpenAI</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+
+          <div id="chatLog" class="chat-log" role="log"
+               aria-live="polite" aria-label="Conversation">
+            <div class="bubble ai">
+              Hello! I can offer general information and help you prepare
+              questions for your clinician. I cannot diagnose or replace
+              emergency care.
+            </div>
+          </div>
+
+          <div class="chat-compose">
+            <input id="chatInput" type="text" maxlength="6000"
+                   placeholder="Type your question…" autocomplete="off">
+            <button id="sendChat" class="btn" type="button">Send</button>
+            <button id="stopSpeaking" class="btn secondary" type="button">Stop speaking</button>
+          </div>
+
+          <div class="assistant-panel hidden" id="assistantPanel">
+            <h3>Voice assistant mode</h3>
+            <p class="small-note">
+              Speak a question or a supported command such as “find hospitals”,
+              “speech practice”, “face observation” or “emergency”.
+            </p>
+            <button id="assistantMic" class="btn" type="button">
+              🎙 Start listening
+            </button>
+          </div>
+        </section>
+
+        <!-- Medicine reminders -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2>Medicine reminders</h2>
+              <p class="small-note">
+                Reminders run only while this page remains open.
+              </p>
+            </div>
+          </div>
+
+          <form id="medicineForm">
+            <div class="field">
+              <label for="medicineName">Reminder name</label>
+              <input id="medicineName" type="text" required
+                     maxlength="120" placeholder="Enter reminder name">
+            </div>
+            <div class="field">
+              <label for="medicineTime">Time</label>
+              <input id="medicineTime" type="time" required>
+            </div>
+            <div class="field">
+              <label for="medicineInstructions">Notes (optional)</label>
+              <input id="medicineInstructions" type="text" maxlength="300"
+                     placeholder="Use only prescribed instructions">
+            </div>
+            <button class="btn" type="submit">Add reminder</button>
+          </form>
+
+          <div id="medicineList" style="margin-top:14px"></div>
+          <p class="small-note">
+            This feature does not prescribe medicines or change doses. Follow
+            your clinician's prescription.
+          </p>
+        </section>
+
+        <!-- Report explanation -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2>Explain a laboratory report</h2>
+              <p class="small-note">
+                Paste report text for a plain-language explanation.
+              </p>
+            </div>
+          </div>
+
+          <div class="notice warning">
+            Remove personal identifiers before pasting. The text is sent to
+            the selected AI provider for processing.
+          </div>
+
+          <div class="field">
+            <label for="reportText">Report text</label>
+            <textarea id="reportText" maxlength="12000"
+              placeholder="Paste the report text, including units and reference ranges…"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="reportFile">Report file (name only in this version)</label>
+            <input id="reportFile" type="file"
+                   accept=".txt,.pdf,.jpg,.jpeg,.png">
+            <p class="small-note">
+              Automatic file text extraction is not implemented here.
+              Copy the relevant text into the box above.
+            </p>
+          </div>
+
+          <button id="explainReport" class="btn" type="button">
+            Explain report
+          </button>
+          <div id="reportAnswer" class="notice hidden"
+               aria-live="polite" style="margin-top:15px;white-space:pre-wrap"></div>
+        </section>
+
+        <!-- Save observations -->
+        <section class="card full">
+          <div class="card-header">
+            <div>
+              <h2>Recovery session notes</h2>
+              <p class="small-note">
+                Save experimental observations and notes in this local demo.
+              </p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="sessionNotes">Notes</label>
+            <textarea id="sessionNotes" maxlength="1000"
+              placeholder="Add notes you want to remember or discuss with your clinician…"></textarea>
+          </div>
+
+          <button id="saveSession" class="btn" type="button">
+            Save session
+          </button>
+
+          <div class="notice warning" style="margin-top:15px">
+            This demo stores session history in a local JSON file on the
+            server. It does not provide patient accounts, access controls,
+            or secure medical-record storage. Do not use it for real patient
+            records without appropriate security and privacy safeguards.
+          </div>
+
+          <h3 style="margin-top:22px">Recent saved sessions</h3>
+          <div id="sessionHistory">
+            <p class="small-note">No sessions saved in this browser yet.</p>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer">
+        <p><strong>RecoveryAI</strong> · A supportive recovery companion</p>
+        <p>
+          Informational use only. Follow your healthcare team's advice.
+          In an emergency in India, call 112.
+        </p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    window.RECOVERY_CONFIG = {
+      defaultEmergency: {{ default_emergency | default("112") | tojson }}
+    };
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+
+  <!-- Optional settings handlers; these do not replace static/app.js. -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const byId = id => document.getElementById(id);
+
+      const contactName = byId("contactName");
+      const contactPhone = byId("contactPhone");
+      const saveContact = byId("saveContact");
+      const callContact = byId("callContact");
+      const recordButton = byId("recordVoice");
+      const stopButton = byId("stopVoiceRecording");
+      const recordStatus = byId("voiceRecordStatus");
+      const playback = byId("voicePlayback");
+
+      try {
+        const saved = JSON.parse(localStorage.getItem("rai_emergency_contact") || "{}");
+        if (contactName) contactName.value = saved.name || "";
+        if (contactPhone) contactPhone.value = saved.phone || "";
+      } catch (_) {}
+
+      if (saveContact) {
+        saveContact.addEventListener("click", function () {
+          const name = contactName.value.trim();
+          const phone = contactPhone.value.trim();
+          if (!phone) {
+            alert("Enter your emergency contact's phone number first.");
+            return;
+          }
+          localStorage.setItem("rai_emergency_contact", JSON.stringify({name, phone}));
+          alert("Emergency contact saved on this device.");
+        });
+      }
+
+      if (callContact) {
+        callContact.addEventListener("click", function () {
+          let saved = {};
+          try {
+            saved = JSON.parse(localStorage.getItem("rai_emergency_contact") || "{}");
+          } catch (_) {}
+
+          const phone = (contactPhone.value || saved.phone || "").trim();
+          if (!phone) {
+            alert("Save an emergency contact phone number first.");
+            return;
+          }
+          const safePhone = phone.replace(/[^\d+]/g, "");
+          if (!safePhone) {
+            alert("Enter a valid phone number.");
+            return;
+          }
+          if (confirm("Open your phone dialer for " + phone + "? You must place the call yourself.")) {
+            window.location.href = "tel:" + safePhone;
+          }
+        });
+      }
+
+      // Find hospitals with device geolocation where available.
+      const hospitalButton = byId("findHospitals");
+      if (hospitalButton) {
+        hospitalButton.addEventListener("click", function () {
+          const fallback = "https://www.google.com/maps/search/?api=1&query=hospitals+near+me";
+
+          if (!navigator.geolocation) {
+            window.open(fallback, "_blank", "noopener,noreferrer");
+            return;
+          }
+
+          hospitalButton.disabled = true;
+          hospitalButton.textContent = "Finding location…";
+
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
+              const url = "https://www.google.com/maps/search/?api=1&query=hospitals&center=" +
+                encodeURIComponent(lat + "," + lng);
+              window.open(url, "_blank", "noopener,noreferrer");
+              hospitalButton.disabled = false;
+              hospitalButton.textContent = "Find hospitals near me ↗";
+            },
+            function () {
+              window.open(fallback, "_blank", "noopener,noreferrer");
+              hospitalButton.disabled = false;
+              hospitalButton.textContent = "Find hospitals near me ↗";
+            },
+            { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+          );
+        });
+      }
+
+      // Record a local voice sample for playback only. No voice cloning.
+      let mediaRecorder = null;
+      let recordedChunks = [];
+      let activeStream = null;
+      let recordingUrl = null;
+
+      if (recordButton) {
+        recordButton.addEventListener("click", async function () {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia ||
+              typeof MediaRecorder === "undefined") {
+            recordStatus.textContent =
+              "Voice recording is not supported in this browser. Try an updated Chrome browser.";
+            return;
+          }
+
+          try {
+            activeStream = await navigator.mediaDevices.getUserMedia({audio: true});
+            recordedChunks = [];
+            mediaRecorder = new MediaRecorder(activeStream);
+
+            mediaRecorder.addEventListener("dataavailable", function (event) {
+              if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener("stop", function () {
+              const blob = new Blob(recordedChunks, {
+                type: mediaRecorder.mimeType || "audio/webm"
+              });
+
+              if (recordingUrl) URL.revokeObjectURL(recordingUrl);
+              recordingUrl = URL.createObjectURL(blob);
+              playback.src = recordingUrl;
+              playback.classList.remove("hidden");
+              recordStatus.textContent =
+                "Recording ready for local playback. It has not been uploaded or used to clone a voice.";
+
+              if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
+                activeStream = null;
+              }
+              recordButton.disabled = false;
+              stopButton.disabled = true;
+            });
+
+            mediaRecorder.start();
+            recordButton.disabled = true;
+            stopButton.disabled = false;
+            recordStatus.textContent = "Recording… Speak normally, then press Stop recording.";
+          } catch (error) {
+            recordStatus.textContent =
+              "Could not start recording. Check microphone permission and try again.";
+            if (activeStream) activeStream.getTracks().forEach(track => track.stop());
+            activeStream = null;
+            recordButton.disabled = false;
+            stopButton.disabled = true;
+          }
+        });
+      }
+
+      if (stopButton) {
+        stopButton.addEventListener("click", function () {
+          if (mediaRecorder && mediaRecorder.state !== "inactive") {
+            mediaRecorder.stop();
+          }
+        });
+      }
+
+      window.addEventListener("beforeunload", function () {
+        if (activeStream) activeStream.getTracks().forEach(track => track.stop());
+        if (recordingUrl) URL.revokeObjectURL(recordingUrl);
+      });
+    });
+  </script>
+</body>
+</html>
